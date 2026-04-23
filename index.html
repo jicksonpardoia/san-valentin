@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuestra Rosa Eterna</title>
+    <style>
+        :root { 
+            --primary: #ff4d94; 
+            --gold: #ffd700; 
+            --bg: #050505;
+        }
+
+        * { box-sizing: border-box; }
+
+        body { 
+            background: var(--bg); 
+            color: white; 
+            margin: 0; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            overflow: hidden; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+        }
+        
+        .container { 
+            text-align: center; 
+            width: 90%; 
+            max-width: 800px; 
+            z-index: 10; 
+        }
+
+        /* FRASE FIJA SUPERIOR */
+        #frase-superior {
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 30px;
+            font-weight: 300;
+        }
+        
+        .rose-box { 
+            position: relative; 
+            width: 80vw; 
+            height: 80vw; 
+            max-width: 420px; 
+            max-height: 420px; 
+            margin: 0 auto; 
+            cursor: pointer; 
+        }
+
+        .rose-box img { 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%;
+            object-fit: contain; 
+            border-radius: 15px; 
+            transition: opacity 2.5s ease-in-out, transform 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        #flower { opacity: 0; filter: drop-shadow(0 0 25px var(--primary)); }
+        
+        h1 { 
+            font-weight: 300; 
+            font-size: 1.3rem;
+            letter-spacing: 2px; 
+            margin-bottom: 20px; 
+            color: #fff;
+        }
+
+        #frase-container {
+            height: 80px;
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #text-slider { 
+            font-size: 1.25rem; 
+            font-style: italic; 
+            color: var(--gold); 
+            opacity: 0; 
+            transition: opacity 2s ease;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+            line-height: 1.5;
+        }
+
+        .petal { 
+            position: absolute; 
+            background: linear-gradient(45deg, var(--primary), #d63384);
+            border-radius: 150% 0 150% 50%; 
+            opacity: 0; 
+            pointer-events: none; 
+            animation: fall linear infinite;
+        }
+        
+        @keyframes fall {
+            0% { transform: translateY(-10vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.8; }
+            100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="frase-superior">Una rosa que nunca se marchita</div>
+        
+        <h1 id="titulo">Toca para florecer...</h1>
+        
+        <div class="rose-box" onclick="iniciarExperiencia()">
+            <img id="bud" src="data/capullo.png" alt="Capullo">
+            <img id="flower" src="data/flor.png" alt="Flor abierta">
+        </div>
+
+        <div id="frase-container">
+            <p id="text-slider"></p>
+        </div>
+    </div>
+
+    <audio id="bgMusic" src="data/et_prometo.mp3" loop></audio>
+
+    <script>
+        let iniciado = false;
+        
+        const frasesPorTipo = {
+            'amor': [
+                "Te prometo un amor que nunca se marchita.",
+                "Cada pétalo guarda un recuerdo a tu lado.",
+                "Eres el regalo más hermoso de mi vida.",
+                "Lo nuestro es eterno, como esta rosa.",
+                "Te amo más de lo que las palabras pueden decir."
+            ],
+            'familia': [
+                "Gracias por ser mi raíz y mi fuerza.",
+                "La familia es el jardín donde crece el alma.",
+                "Tu amor incondicional es mi mayor tesoro.",
+                "Para quien siempre ha estado ahí, gracias.",
+                "Te quiero con todo mi corazón."
+            ],
+            'amistad': [
+                "Las verdaderas amistades florecen para siempre.",
+                "Gracias por cultivar momentos inolvidables conmigo.",
+                "Por las risas, el apoyo y la lealtad eterna.",
+                "Eres la familia que uno elige.",
+                "Brindo por nuestra amistad inmarcesible."
+            ]
+        };
+
+        function iniciarExperiencia() {
+            if (iniciado) return;
+            iniciado = true;
+
+            const music = document.getElementById('bgMusic');
+            const bud = document.getElementById('bud');
+            const flower = document.getElementById('flower');
+            
+            music.play().catch(e => console.log("Audio play blocked"));
+            
+            bud.style.opacity = '0';
+            flower.style.opacity = '1';
+            flower.style.transform = 'scale(1.1)';
+            document.getElementById('titulo').style.opacity = '0';
+
+            // Lluvia de pétalos
+            for(let i=0; i<50; i++) {
+                setTimeout(crearPetalo, i * 150);
+            }
+
+            // Iniciar ciclo de frases según URL
+            const params = new URLSearchParams(window.location.search);
+            const tipo = params.get('tipo') || 'amor';
+            mostrarFrases(frasesPorTipo[tipo] || frasesPorTipo['amor']);
+        }
+
+        function mostrarFrases(lista) {
+            const slider = document.getElementById('text-slider');
+            let index = 0;
+
+            const cambiarTexto = () => {
+                slider.style.opacity = '0';
+                setTimeout(() => {
+                    slider.innerText = lista[index];
+                    slider.style.opacity = '1';
+                    index = (index + 1) % lista.length;
+                }, 2000); // 2 seg para desaparecer/aparecer suavemente
+            };
+
+            cambiarTexto();
+            setInterval(cambiarTexto, 7000); // Cambio cada 7 segundos como pediste
+        }
+
+        function crearPetalo() {
+            const p = document.createElement('div');
+            p.className = 'petal';
+            const size = Math.random() * 20 + 10;
+            p.style.left = Math.random() * 100 + 'vw';
+            p.style.width = size + 'px';
+            p.style.height = size + 'px';
+            p.style.animationDuration = Math.random() * 3 + 5 + 's';
+            document.body.appendChild(p);
+            setTimeout(() => p.remove(), 8000);
+        }
+    </script>
+</body>
+</html>
