@@ -129,7 +129,19 @@
     <script>
         let iniciado = false;
         
-        const frasesPorTipo = {
+        // 1. Diccionario de Assets (Imágenes)
+        // Para 'amor' tenemos un Array para el azar. Para el resto, objetos directos.
+        const configImagenes = {
+            'amor': [
+                { bud: 'data/capullo.png', flower: 'data/flor.png' },
+                { bud: 'data/capullo_amor.png', flower: 'data/flor_amor.png' }
+            ],
+            'familia': { bud: 'data/capullo_familia.png', flower: 'data/flor_familia.png' },
+            'amistad': { bud: 'data/capullo_amistad.png', flower: 'data/flor_amistad.png' }
+        };
+
+        // 2. Diccionario de Frases
+        const frasesDict = {
             'amor': [
                 "Te prometo un amor que nunca se marchita.",
                 "Cada pétalo guarda un recuerdo a tu lado.",
@@ -153,6 +165,28 @@
             ]
         };
 
+        // 3. Lógica de selección al cargar la página
+        const params = new URLSearchParams(window.location.search);
+        const tipo = params.get('tipo') || 'amor'; // Valor por defecto: amor
+        let seleccionFinal;
+
+        // Lógica específica para cada caso
+        if (tipo === 'amor') {
+            const azar = Math.floor(Math.random() * configImagenes.amor.length);
+            seleccionFinal = configImagenes.amor[azar];
+        } else if (tipo === 'familia') {
+            seleccionFinal = configImagenes.familia;
+        } else if (tipo === 'amistad') {
+            seleccionFinal = configImagenes.amistad;
+        } else {
+            // Fallback por si escriben mal el parámetro
+            seleccionFinal = configImagenes.amor[0];
+        }
+
+        // Asignamos las imágenes antes de que el usuario haga nada
+        document.getElementById('bud').src = seleccionFinal.bud;
+        document.getElementById('flower').src = seleccionFinal.flower;
+
         function iniciarExperiencia() {
             if (iniciado) return;
             iniciado = true;
@@ -163,37 +197,33 @@
             
             music.play().catch(e => console.log("Audio play blocked"));
             
+            // Animación de la rosa
             bud.style.opacity = '0';
             flower.style.opacity = '1';
             flower.style.transform = 'scale(1.1)';
             document.getElementById('titulo').style.opacity = '0';
 
-            // Lluvia de pétalos
-            for(let i=0; i<50; i++) {
-                setTimeout(crearPetalo, i * 150);
-            }
+            // Lluvia de pétalos INFINITA
+            setInterval(crearPetalo, 300);
 
-            // Iniciar ciclo de frases según URL
-            const params = new URLSearchParams(window.location.search);
-            const tipo = params.get('tipo') || 'amor';
-            mostrarFrases(frasesPorTipo[tipo] || frasesPorTipo['amor']);
+            // Ciclo de frases según la categoría elegida
+            const listaFrases = frasesDict[tipo] || frasesDict['amor'];
+            mostrarFrases(listaFrases);
         }
 
         function mostrarFrases(lista) {
             const slider = document.getElementById('text-slider');
             let index = 0;
-
             const cambiarTexto = () => {
                 slider.style.opacity = '0';
                 setTimeout(() => {
                     slider.innerText = lista[index];
                     slider.style.opacity = '1';
                     index = (index + 1) % lista.length;
-                }, 2000); // 2 seg para desaparecer/aparecer suavemente
+                }, 2000);
             };
-
             cambiarTexto();
-            setInterval(cambiarTexto, 7000); // Cambio cada 7 segundos como pediste
+            setInterval(cambiarTexto, 7000);
         }
 
         function crearPetalo() {
@@ -203,9 +233,9 @@
             p.style.left = Math.random() * 100 + 'vw';
             p.style.width = size + 'px';
             p.style.height = size + 'px';
-            p.style.animationDuration = Math.random() * 3 + 5 + 's';
+            p.style.animationDuration = Math.random() * 3 + 4 + 's';
             document.body.appendChild(p);
-            setTimeout(() => p.remove(), 8000);
+            setTimeout(() => p.remove(), 7000);
         }
     </script>
 </body>
