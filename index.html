@@ -108,7 +108,6 @@
     </style>
 </head>
 <body>
-
     <div class="container">
         <div id="frase-superior">Una rosa que nunca se marchita</div>
         
@@ -136,8 +135,18 @@
                 { bud: 'data/capullo.png', flower: 'data/flor.png' },
                 { bud: 'data/capullo_amor.png', flower: 'data/flor_amor.png' }
             ],
-            'familia': { bud: 'data/capullo_familia.png', flower: 'data/flor_familia.png' },
+            'familia': [
+                { bud: 'data/capullo_familia.png', flower: 'data/flor_familia.png' },
+                { bud: 'data/capullo_mama.png', flower: 'data/flor_mama.png' }
+            ],
             'amistad': { bud: 'data/capullo_amistad.png', flower: 'data/flor_amistad.png' }
+        };
+
+        // Configuración de música por categoría
+        const musicConfig = {
+            'amor': 'data/et_prometo.mp3',
+            'familia': 'data/como_te_pago.mp3',
+            'amistad': 'data/et_prometo.mp3' // O la que prefieras
         };
 
         // 2. Diccionario de Frases
@@ -150,10 +159,13 @@
                 "Cada pétalo es un viaje, un baile y ganas de seguir conociéndote."
             ],
             'familia': [
-                "Gracias por ser mi raíz y mi fuerza.",
+                "Feliz Sant Jordi a la mujer que me enseñó a florecer.",
+                "Gracias por ser mi guía y mi raíz en cada paso que doy.",
+                "Para el mundo eres una madre, para mí eres el mundo entero.",
+                "Tu amor es el regalo más puro que la vida me ha regalado.",
+                "No hay palabras que alcancen para agradecer todo lo que haces por mí.",
                 "La familia es el jardín donde crece el alma.",
                 "Tu amor incondicional es mi mayor tesoro.",
-                "Para quien siempre ha estado ahí, gracias.",
                 "Te quiero con todo mi corazón."
             ],
             'amistad': [
@@ -171,11 +183,11 @@
         let seleccionFinal;
 
         // Lógica específica para cada caso
+
         if (tipo === 'amor') {
-            const azar = Math.floor(Math.random() * configImagenes.amor.length);
-            seleccionFinal = configImagenes.amor[azar];
+            seleccionFinal = configImagenes.amor[Math.floor(Math.random() * configImagenes.amor.length)];
         } else if (tipo === 'familia') {
-            seleccionFinal = configImagenes.familia;
+            seleccionFinal = configImagenes.familia[Math.floor(Math.random() * configImagenes.familia.length)];
         } else if (tipo === 'amistad') {
             seleccionFinal = configImagenes.amistad;
         } else {
@@ -195,7 +207,7 @@
             const bud = document.getElementById('bud');
             const flower = document.getElementById('flower');
             
-            music.play().catch(e => console.log("Audio play blocked"));
+            playMusic(tipo);
             
             // Animación de la rosa
             bud.style.opacity = '0';
@@ -224,6 +236,16 @@
             };
             cambiarTexto();
             setInterval(cambiarTexto, 7000);
+        }
+
+        // Función para reproducir según el tipo
+        function playMusic(tipo) {
+            const audioPath = musicConfig[tipo] || musicConfig['amor']; // 'amor' por defecto
+            const audio = new Audio(audioPath);
+            audio.loop = true;
+            
+            // El navegador requiere una interacción previa (el clic en la rosa)
+            audio.play().catch(error => console.log("Esperando interacción para sonar..."));
         }
 
         function crearPetalo() {
